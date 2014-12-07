@@ -100,10 +100,13 @@
 
 (defn -main
   [& args]
-  (println "Here is a solve tree for subject matrix:")
-  (let [tree (solve-tree subject-matrix)]
+  (println "Going to build solve tree by subject matrix and profile it:")
+  (let [tree (time (solve-tree subject-matrix))]
+    (println "Here is a solve tree for subject matrix:")
     (time (pprint tree))
+    (println "Here is a source subject matrix:")
     (pprint subject-matrix)
+    (println)
     (println "Now let's define what is the subject in front of you by answering questions")
     (try
       (let [alternatives (find-out tree)]
