@@ -60,22 +60,20 @@
   (let [feature (first (first answers))]
     (println "What is the value of feature: " feature "?")
     (let [indexed-answers (print-answers answers)]
-      #_(println "Indexed-answers" indexed-answers)
       (println "0. Nothing of the kind" )
       (print "Answer (number of the option): ")
       (flush)
       (let [cr (ConsoleReader.)
-            users-choise (.readLine cr)]
+            user-choise (.readLine cr)]
         (try
-          (let [answer-number (Integer/parseInt users-choise)]
+          (let [answer-number (Integer/parseInt user-choise)]
             (if-let [answer (indexed-answers answer-number)]
               answer
               (throw (IllegalStateException. (str "Subject don't corresponds any of options for feature: " feature)))))
           (catch NumberFormatException e
             (do (println "Please, choose right option from answers. Try one more time")
                 (ask-question answers))))
-        )))
-  )
+        ))))
 
 (defn answers [tree]
   (into #{}
