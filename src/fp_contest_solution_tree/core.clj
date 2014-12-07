@@ -6,9 +6,9 @@
 
 (def undefined "—")
 
-(def beetles-names ["Ауата сетуньская" "Десятилиньята лепая" "Семипунктата Коха" "Популий грыжомельский" "Гортикола филопетьевая"])
+(def subject-names ["Ауата сетуньская" "Десятилиньята лепая" "Семипунктата Коха" "Популий грыжомельский" "Гортикола филопетьевая"])
 
-(def beetles-matrix  [["Наличие бомбурий",         ["Да",      "Да",        "Нет",       "Да",    "Нет"]],
+(def subject-matrix  [["Наличие бомбурий",         ["Да",      "Да",        "Нет",       "Да",    "Нет"]],
                       ["Количество клептиконов",   ["1",       "1",         "0",         "3",     "5"]],
                       ["Цвет велория",             ["Красный", "Оранжевый", "Оранжевый", "—",     "Синий"]],
                       ["Наличие пумпеля",          ["Нет",     "Да",        "Да",        "—",     "—"]],
@@ -58,6 +58,12 @@
         (recur (next current-answers) (inc index) (assoc indexed-answers index ans))))
     ))
 
+(declare ask-question)
+
+(defn repeat-question [answers]
+  (println "Please, choose right option from answers. Try one more time")
+  (ask-question answers))
+
 (defn ask-question [answers]
   (let [feature (first (first answers))]
     (println "What is the value of feature: " feature "?")
@@ -71,10 +77,9 @@
           (let [answer-number (Integer/parseInt user-choise)]
             (if-let [answer (indexed-answers answer-number)]
               answer
-              (throw (IllegalStateException. (str "Subject don't corresponds any of options for feature: " feature)))))
-          (catch NumberFormatException e
-            (do (println "Please, choose right option from answers. Try one more time")
-                (ask-question answers))))
+              (repeat-question answers)
+              #_(throw (IllegalStateException. (str "Subject don't corresponds any of options for feature: " feature)))))
+          (catch NumberFormatException e (repeat-question answers)))
         ))))
 
 (defn answers [tree]
@@ -85,32 +90,34 @@
 (defn get-subtree [tree option]
   (first (filter #(= (:answer %) option) tree)))
 
-;; (get-subtree (solve-tree beetles-matrix) "Да")
+;; (get-subtree (solve-tree subject-matrix) "Да")
 
 (defn find-out [tree]
   (let [chosen-option (ask-question (answers tree))
         chosen-subtree (get-subtree tree chosen-option)]
     (if-let [children (:children chosen-subtree)]
       (find-out children)
-      (map #(get beetles-names %) (:alternatives chosen-subtree)))))
+      (map #(get subject-names %) (:alternatives chosen-subtree)))))
 
 
-;; (find-out (solve-tree beetles-matrix))
+;; (find-out (solve-tree subject-matrix))
 
 (defn -main
   [& args]
-  (println "Here is a solve tree for beetles matrix:")
-  (let [tree (solve-tree beetles-matrix)]
+  (println "Here is a solve tree for subject matrix:")
+  (let [tree (solve-tree subject-matrix)]
     (time (pprint tree))
-    (pprint beetles-matrix)
-    (println "Now let's define what is the beetle in front of you by answering questions")
+    (pprint subject-matrix)
+    (println "Now let's define what is the subject in front of you by answering questions")
     (let [alternatives (find-out tree)]
-      (println "You got following alternatives" alternatives))))
+      (if (= (count alternatives) 1)
+        (println "Your subject is: " (first alternatives))
+        (println "Feature matrix is not unique, so got following alternatives: " alternatives)))))
 
 (comment
   (-main)
   (print-table [:value1 :value2] [{:value1 1 :value2 2}{:value1 3 :value2 4}])
-  (time (pprint (solve-tree beetles-matrix)))
+  (time (pprint (solve-tree subject-matrix)))
   (solve-tree [["f1" ["yes" "yes" "no" "no"]] ["f2" ["1" "2" "2" "—"]]] nil)
 
   (def f1 ["f1" ["1" "1" "2"]])
