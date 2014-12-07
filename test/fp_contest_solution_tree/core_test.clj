@@ -25,4 +25,4 @@
         (alternatives ["yes" "no" "no" "yes"] nil))
 
 (expect {"yes" #{0} "no" #{1 2}}
-        (alternatives ["yes" "no" "no" "-"]))
+        (alternatives ["yes" "no" "no" "—"]))
