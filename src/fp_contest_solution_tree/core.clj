@@ -55,8 +55,7 @@
 
       (if (nil? (next current-answers))
         (assoc indexed-answers index ans)
-        (recur (next current-answers) (inc index) (assoc indexed-answers index ans))))
-    ))
+        (recur (next current-answers) (inc index) (assoc indexed-answers index ans))))))
 
 (declare ask-question)
 
@@ -66,21 +65,21 @@
 
 (defn ask-question [answers]
   (let [feature (first (first answers))]
-    (println "What is the value of feature: " feature "?")
+    (println "What is the value of feature:" feature "?")
     (let [indexed-answers (print-answers answers)]
       (println "0. Nothing of the kind" )
-      (print "Answer (number of the option): ")
+      (print "Answer (number of the option):")
       (flush)
       (let [cr (ConsoleReader.)
             user-choise (.readLine cr)]
         (try
           (let [answer-number (Integer/parseInt user-choise)]
+            (if (= 0 answer-number)
+              (throw (IllegalStateException. (str "subject don't corresponds any of options for feature: " feature))))
             (if-let [answer (indexed-answers answer-number)]
               answer
-              (repeat-question answers)
-              #_(throw (IllegalStateException. (str "Subject don't corresponds any of options for feature: " feature)))))
-          (catch NumberFormatException e (repeat-question answers)))
-        ))))
+              (repeat-question answers)))
+          (catch NumberFormatException e (repeat-question answers)))))))
 
 (defn answers [tree]
   (into #{}
@@ -99,9 +98,6 @@
       (find-out children)
       (map #(get subject-names %) (:alternatives chosen-subtree)))))
 
-
-;; (find-out (solve-tree subject-matrix))
-
 (defn -main
   [& args]
   (println "Here is a solve tree for subject matrix:")
@@ -109,13 +105,15 @@
     (time (pprint tree))
     (pprint subject-matrix)
     (println "Now let's define what is the subject in front of you by answering questions")
-    (let [alternatives (find-out tree)]
-      (if (= (count alternatives) 1)
-        (println "Your subject is: " (first alternatives))
-        (println "Feature matrix is not unique, so got following alternatives: " alternatives)))))
+    (try
+      (let [alternatives (find-out tree)]
+        (if (= (count alternatives) 1)
+          (println "Your subject is: " (first alternatives))
+          (println "Feature matrix is not unique, so got following alternatives:" alternatives)))
+      (catch IllegalStateException e (println "Your subject is not known to scientists, because" (.getMessage e))))))
+
 
 (comment
-  (-main)
   (print-table [:value1 :value2] [{:value1 1 :value2 2}{:value1 3 :value2 4}])
   (time (pprint (solve-tree subject-matrix)))
   (solve-tree [["f1" ["yes" "yes" "no" "no"]] ["f2" ["1" "2" "2" "—"]]] nil)
@@ -131,7 +129,4 @@
   (reduce-indexed (fn [acc idx itm]
                     (println (str "acc: " acc " idx: " idx " itm: " itm))
                     (assoc acc itm (conj (get acc itm #{}) idx))) {} values)
-
-
-
-  )
+)
