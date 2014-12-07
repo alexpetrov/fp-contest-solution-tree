@@ -80,9 +80,18 @@
         (for [{:keys [feature answer]} tree]
           [feature answer])))
 
+(defn get-subtree [tree option]
+  (first (filter #(= (:answer %) option) tree)))
+
+;; (get-subtree (solve-tree beetles-matrix) "Да")
+
 (defn find-out [tree]
-  (let [chosen-option (ask-question (answers tree))]
-    (println "Chosen option: " chosen-option)))
+  (let [chosen-option (ask-question (answers tree))
+        chosen-subtree (get-subtree tree chosen-option)]
+    (if-let [children (:children chosen-subtree)]
+      (find-out children)
+      (:alternatives chosen-subtree))))
+
 
 ;; (find-out (solve-tree beetles-matrix))
 
@@ -93,7 +102,8 @@
     (time (pprint tree))
     (pprint beetles-matrix)
     (println "Now let's define what is the beetle in front of you by answering questions")
-    (find-out tree)))
+    (let [alternatives (find-out tree)]
+      (println "You got following alternatives" alternatives))))
 
 (comment
   (-main)
