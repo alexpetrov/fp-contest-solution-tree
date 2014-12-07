@@ -19,6 +19,8 @@
                       ["Цвет лемпелей",            ["Жёлтый",  "Жёлтый",    "Жёлтый",    "Белый", "Белый"]],
                       ["Наличие пильских трапков", ["Да",      "Да",        "Да",        "Да",    "Да"]]])
 
+
+;; Domain logic
 (defn alternatives
   ([feature-values]
      (alternatives feature-values nil))
@@ -46,6 +48,11 @@
                        (assoc node :children children)))
                    node)))))))
 
+(defn get-subtree [tree option]
+  (first (filter #(= (:answer %) option) tree)))
+;; Domain logic end
+
+;; Console UI functions
 (defn print-answers [answers]
   (loop [current-answers answers
          index 1
@@ -86,11 +93,6 @@
         (for [{:keys [feature answer]} tree]
           [feature answer])))
 
-(defn get-subtree [tree option]
-  (first (filter #(= (:answer %) option) tree)))
-
-;; (get-subtree (solve-tree subject-matrix) "Да")
-
 (defn find-out [tree]
   (let [chosen-option (ask-question (answers tree))
         chosen-subtree (get-subtree tree chosen-option)]
@@ -116,7 +118,9 @@
       (catch IllegalStateException e (println "Your subject is not known to scientists, because" (.getMessage e))))))
 
 
+;; Testing in REPL stuff. It is commented, so it wont be compiled and executed.
 (comment
+  (get-subtree (solve-tree subject-matrix) "Да")
   (print-table [:value1 :value2] [{:value1 1 :value2 2}{:value1 3 :value2 4}])
   (time (pprint (solve-tree subject-matrix)))
   (solve-tree [["f1" ["yes" "yes" "no" "no"]] ["f2" ["1" "2" "2" "—"]]] nil)
