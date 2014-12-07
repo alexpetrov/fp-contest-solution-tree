@@ -1,7 +1,7 @@
 (ns fp-contest-solution-tree.core
   (:gen-class)
   (:import [jline.console ConsoleReader])
-  (:require [mc.util :refer :all]
+  (:require [mc.util :refer [reduce-indexed]]
             [clojure.pprint :refer [pprint print-table]]))
 
 (def undefined "—")
@@ -68,7 +68,7 @@
     (println "What is the value of feature:" feature "?")
     (let [indexed-answers (print-answers answers)]
       (println "0. Nothing of the kind" )
-      (print "Answer (number of the option):")
+      (print "Answer (Enter number of the option): ")
       (flush)
       (let [cr (ConsoleReader.)
             user-choise (.readLine cr)]
