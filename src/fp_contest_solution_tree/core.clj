@@ -6,6 +6,8 @@
 
 (def undefined "—")
 
+(def beetles-names ["Ауата сетуньская" "Десятилиньята лепая" "Семипунктата Коха" "Популий грыжомельский" "Гортикола филопетьевая"])
+
 (def beetles-matrix  [["Наличие бомбурий",         ["Да",      "Да",        "Нет",       "Да",    "Нет"]],
                       ["Количество клептиконов",   ["1",       "1",         "0",         "3",     "5"]],
                       ["Цвет велория",             ["Красный", "Оранжевый", "Оранжевый", "—",     "Синий"]],
@@ -90,7 +92,7 @@
         chosen-subtree (get-subtree tree chosen-option)]
     (if-let [children (:children chosen-subtree)]
       (find-out children)
-      (:alternatives chosen-subtree))))
+      (map #(get beetles-names %) (:alternatives chosen-subtree)))))
 
 
 ;; (find-out (solve-tree beetles-matrix))
