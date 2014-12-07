@@ -1,11 +1,12 @@
 (ns fp-contest-solution-tree.core
   (:gen-class)
+  (:import [jline.console ConsoleReader])
   (:require [mc.util :refer :all]
             [clojure.pprint :refer [pprint print-table]]))
 
 (def undefined "—")
 
-(def beatles-matrix  [["Наличие бомбурий",         ["Да",      "Да",        "Нет",       "Да",    "Нет"]],
+(def beetles-matrix  [["Наличие бомбурий",         ["Да",      "Да",        "Нет",       "Да",    "Нет"]],
                       ["Количество клептиконов",   ["1",       "1",         "0",         "3",     "5"]],
                       ["Цвет велория",             ["Красный", "Оранжевый", "Оранжевый", "—",     "Синий"]],
                       ["Наличие пумпеля",          ["Нет",     "Да",        "Да",        "—",     "—"]],
@@ -43,14 +44,63 @@
                        (assoc node :children children)))
                    node)))))))
 
+(defn print-answers [answers]
+  (loop [current-answers answers
+         index 1
+         indexed-answers {}]
+    (let [[feature ans] (first current-answers)]
+      (println (str "" index ". " ans))
+
+      (if (nil? (next current-answers))
+        (assoc indexed-answers index ans)
+        (recur (next current-answers) (inc index) (assoc indexed-answers index ans))))
+    ))
+
+(defn ask-question [answers]
+  (let [feature (first (first answers))]
+    (println "What is the value of feature: " feature "?")
+    (let [indexed-answers (print-answers answers)]
+      #_(println "Indexed-answers" indexed-answers)
+      (println "0. Nothing of the kind" )
+      (print "Answer (number of the option): ")
+      (flush)
+      (let [cr (ConsoleReader.)
+            users-choise (.readLine cr)]
+        (try
+          (let [answer-number (Integer/parseInt users-choise)]
+            (if-let [answer (indexed-answers answer-number)]
+              answer
+              (throw (IllegalStateException. (str "Subject don't corresponds any of options for feature: " feature)))))
+          (catch NumberFormatException e
+            (do (println "Please, choose right option from answers. Try one more time")
+                (ask-question answers))))
+        )))
+  )
+
+(defn answers [tree]
+  (into #{}
+        (for [{:keys [feature answer]} tree]
+          [feature answer])))
+
+(defn find-out [tree]
+  (let [chosen-option (ask-question (answers tree))]
+    (println "Chosen option: " chosen-option)))
+
+;; (find-out (solve-tree beetles-matrix))
+
 (defn -main
   [& args]
-  (time (pprint (solve-tree beatles-matrix))))
+  (println "Here is a solve tree for beetles matrix:")
+  (let [tree (solve-tree beetles-matrix)]
+    (time (pprint tree))
+    (pprint beetles-matrix)
+    (println "Now let's define what is the beetle in front of you by answering questions")
+    (find-out tree)))
 
 (comment
-
+  (-main)
   (print-table [:value1 :value2] [{:value1 1 :value2 2}{:value1 3 :value2 4}])
-  (time (pprint (solve-tree beatles-matrix)))
+  (time (pprint (solve-tree beetles-matrix)))
   (solve-tree [["f1" ["yes" "yes" "no" "no"]] ["f2" ["1" "2" "2" "—"]]] nil)
 
   (def f1 ["f1" ["1" "1" "2"]])
